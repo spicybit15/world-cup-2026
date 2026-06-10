@@ -1,0 +1,23 @@
+name: Sync World Cup pool
+
+on:
+  schedule:
+    # GitHub runs cron in UTC and may delay a few minutes on free runners.
+    # Every 10 minutes is plenty for a pool (points only change on finished matches).
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}        # lets you run it on demand from the Actions tab
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Fetch results and update Supabase
+        run: node fetch.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          FOOTBALL_DATA_KEY: ${{ secrets.FOOTBALL_DATA_KEY }}
